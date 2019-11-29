@@ -1,4 +1,4 @@
-package TUPGo
+package tupgo
 
 import (
 	"encoding/binary"
