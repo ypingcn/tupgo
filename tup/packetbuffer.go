@@ -1,7 +1,6 @@
 package tup
 
 import (
-	"errors"
 	"reflect"
 
 	"github.com/TarsCloud/TarsGo/tars/protocol/codec"
@@ -23,7 +22,7 @@ func (pb *PacketBuffer) GetRawData() (interface{}, error) {
 	} else if pb.IVersion == 3 {
 		return pb.NewData, nil
 	}
-	return nil, errors.New("NOT SUPPORT")
+	return nil, ErrTUPVersionNotSupported
 }
 
 func (pb *PacketBuffer) init() {
@@ -34,7 +33,7 @@ func (pb *PacketBuffer) init() {
 
 func (pb *PacketBuffer) get(key string, value interface{}) error {
 	if pb.IVersion != 2 && pb.IVersion != 3 {
-		return errors.New("NOT SUPPORTED VERSION")
+		return ErrTUPVersionNotSupported
 	}
 	if key == "" {
 		value = pb.iRet
@@ -52,7 +51,7 @@ func (pb *PacketBuffer) get(key string, value interface{}) error {
 				if have {
 					f.Func.Call([]reflect.Value{receiver, arg})
 				} else {
-					return errors.New("NO ReadFrom SUPPORT")
+					return ErrNeedReadFrom
 				}
 			}
 		}
@@ -65,7 +64,7 @@ func (pb *PacketBuffer) get(key string, value interface{}) error {
 			if have {
 				f.Func.Call([]reflect.Value{receiver, arg})
 			} else {
-				return errors.New("NO ReadFrom SUPPORT")
+				return ErrNeedReadFrom
 			}
 		}
 	}
@@ -74,14 +73,14 @@ func (pb *PacketBuffer) get(key string, value interface{}) error {
 
 func (pb *PacketBuffer) put(key string, value interface{}) error {
 	if pb.IVersion != 2 && pb.IVersion != 3 {
-		return errors.New("NOT SUPPORTED VERSION")
+		return ErrTUPVersionNotSupported
 	}
 	os := codec.NewBuffer()
 	receiver := reflect.ValueOf(value)
 	arg := reflect.ValueOf(os)
 	f, have := reflect.TypeOf(value).MethodByName("WriteTo")
 	if !have {
-		return errors.New("NO WriteTo SUPPORT")
+		return ErrNeedWriteTo
 	}
 
 	f.Func.Call([]reflect.Value{receiver, arg})
