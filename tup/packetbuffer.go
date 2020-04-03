@@ -18,9 +18,22 @@ type PacketBuffer struct {
 // GetRawData get raw data
 func (pb *PacketBuffer) GetRawData() (interface{}, error) {
 	if pb.IVersion == 2 {
-		return pb.Data, nil
+		data := make(map[string]map[string][]byte)
+		for k, v := range pb.Data {
+			data[k] = make(map[string][]byte)
+			for k1, v1 := range v {
+				data[k][k1] = make([]byte, len(v1))
+				copy(data[k][k1], v1)
+			}
+		}
+		return data, nil
 	} else if pb.IVersion == 3 {
-		return pb.NewData, nil
+		newData := make(map[string][]byte)
+		for k, v := range pb.NewData {
+			newData[k] = make([]byte, len(v))
+			copy(newData[k], v)
+		}
+		return newData, nil
 	}
 	return nil, ErrTUPVersionNotSupported
 }
