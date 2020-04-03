@@ -1,0 +1,5 @@
+github.com/TarsCloud/TarsGo v0.0.0-20200403081750-b5b91784b708 h1:7DT4qyDY7zgH/MMLbLWHkrTd2rzWltTHquD1nJW4STw=
+github.com/TarsCloud/TarsGo v0.0.0-20200403081750-b5b91784b708/go.mod h1:wb3nK4nrl9BkqNA4c/3m3eAAbnH5ppJtA2ijGJqc9cs=
+github.com/golang/protobuf v1.3.2/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
+github.com/opentracing/opentracing-go v1.1.0/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
+github.com/openzipkin-contrib/zipkin-go-opentracing v0.3.5/go.mod h1:uVHyebswE1cCXr2A73cRM2frx5ld1RJUCJkFNZ90ZiI=
