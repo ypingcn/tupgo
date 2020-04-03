@@ -31,10 +31,48 @@ type TarsUniPacket struct {
 	Status       map[string]string // rsp only
 }
 
-// Init for TarsUniPacket
+// NewTarsUniPacket - With TUP Version 2
+func NewTarsUniPacket() TarsUniPacket {
+	return TarsUniPacket{
+		IVersion: 2,
+		Buffer: PacketBuffer{
+			IVersion: 2,
+			NewData:  make(map[string][]byte),
+			Data:     make(map[string]map[string][]byte),
+		},
+	}
+}
+
+// NewTarsUniPacketVersion3 - With TUP Version 3
+func NewTarsUniPacketVersion3() TarsUniPacket {
+	return TarsUniPacket{
+		IVersion: 3,
+		Buffer: PacketBuffer{
+			IVersion: 3,
+			NewData:  make(map[string][]byte),
+			Data:     make(map[string]map[string][]byte),
+		},
+	}
+}
+
+// Init for TarsUniPacket - With TUP Version 2
 func (tup *TarsUniPacket) Init() {
 	tup.IVersion = 2
-	tup.Buffer.init()
+	tup.Buffer = PacketBuffer{
+		IVersion: 2,
+		NewData:  make(map[string][]byte),
+		Data:     make(map[string]map[string][]byte),
+	}
+}
+
+// InitVerion3 for TarsUniPacket - With TUP Version 3
+func (tup *TarsUniPacket) InitVerion3() {
+	tup.IVersion = 3
+	tup.Buffer = PacketBuffer{
+		IVersion: 3,
+		NewData:  make(map[string][]byte),
+		Data:     make(map[string]map[string][]byte),
+	}
 }
 
 // SetVersion for TarsUniPacket
