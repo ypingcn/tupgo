@@ -40,10 +40,8 @@ func DoSimpleHTTPRequest(method string, url string, reqBody string, headers map[
 
 //DoSimpleTUPHTTPRequest TUP request using TUPStruct
 func DoSimpleTUPHTTPRequest(method string, url string, servantName string, funcName string, req map[string]tup.TUPStruct, rsp map[string]tup.TUPStruct) error {
-	tupReq := tup.TarsUniPacket{}
+	tupReq := tup.NewTarsUniPacketVersion3()
 
-	tupReq.Init()
-	tupReq.SetVersion(3)
 	tupReq.SetServantName(servantName)
 	tupReq.SetFuncName(funcName)
 
@@ -63,9 +61,7 @@ func DoSimpleTUPHTTPRequest(method string, url string, servantName string, funcN
 		return err
 	}
 
-	tupRsp := tup.TarsUniPacket{}
-	tupRsp.Init()
-	tupRsp.SetVersion(3)
+	tupRsp := tup.NewTarsUniPacketVersion3()
 
 	err = tupRsp.Decode([]byte(rspBody))
 	if err != nil {
