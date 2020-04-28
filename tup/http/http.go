@@ -4,13 +4,16 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	tup "github.com/ypingcn/tupgo/tup"
 )
 
 // DoSimpleHTTPRequest HTTP request
 func DoSimpleHTTPRequest(method string, url string, reqBody string, headers map[string]string) (rspBody string, err error) {
-	httpClient := &http.Client{}
+	httpClient := &http.Client{
+		Timeout: 5 * time.Second,
+	}
 
 	httpReq, err := http.NewRequest(method, url, strings.NewReader(string(reqBody)))
 
