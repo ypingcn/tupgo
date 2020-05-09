@@ -27,8 +27,8 @@ type TarsUniPacket struct {
 	SFuncName    string
 	Buffer       PacketBuffer
 	ITimeout     int32
-	Context      map[string]string // req only
-	Status       map[string]string // rsp only
+	Context      map[string]string
+	Status       map[string]string
 }
 
 // NewTarsUniPacket - With TUP Version 2

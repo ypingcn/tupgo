@@ -1,4 +1,4 @@
-# TUPGo
+# tupgo
 
 [English](./README.md)
 
@@ -16,15 +16,14 @@ module TEST
 };
 ```
 
-2. 使用 TUPGo
+2. 使用 tupgo
 
 ```golang
     var buffer []byte 
     var err error
 
     s1 := TEST.S{A : 100}
-    req := TUPGo.TarsUniPacket{}
-    req.Init()
+    req := tupgo.NewTarsUniPacket()
     req.SetServantName("test")
     req.SetFuncName("test")
     err = req.Put("tReq",&s1)
@@ -37,8 +36,7 @@ module TEST
     }
 
     s2 := TEST.S{}
-    rsp := TUPGo.TarsUniPacket{}
-    rsp.Init()
+    rsp := tupgo.NewTarsUniPacket()
     err = rsp.Decode(buffer)
     if err != nil {
         log.Fatalln(err)
