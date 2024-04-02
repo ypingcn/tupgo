@@ -38,12 +38,6 @@ func (pb *PacketBuffer) GetRawData() (interface{}, error) {
 	return nil, ErrTUPVersionNotSupported
 }
 
-func (pb *PacketBuffer) init() {
-	pb.IVersion = 2
-	pb.NewData = make(map[string][]byte)
-	pb.Data = make(map[string]map[string][]byte)
-}
-
 func (pb *PacketBuffer) get(key string, value interface{}) error {
 	if pb.IVersion != 2 && pb.IVersion != 3 {
 		return ErrTUPVersionNotSupported
@@ -123,12 +117,12 @@ func (pb *PacketBuffer) writeTo(os *codec.Buffer) error {
 		if err != nil {
 			return err
 		}
-		err = os.Write_int32(int32(len(pb.Data)), 0)
+		err = os.WriteInt32(int32(len(pb.Data)), 0)
 		if err != nil {
 			return err
 		}
 		for k, v := range pb.Data {
-			err = os.Write_string(k, 0)
+			err = os.WriteString(k, 0)
 			if err != nil {
 				return err
 			}
@@ -136,16 +130,16 @@ func (pb *PacketBuffer) writeTo(os *codec.Buffer) error {
 			if err != nil {
 				return err
 			}
-			err = os.Write_int32(int32(len(v)), 0)
+			err = os.WriteInt32(int32(len(v)), 0)
 			if err != nil {
 				return err
 			}
 			for className, value := range v {
-				err = os.Write_string(className, 0)
+				err = os.WriteString(className, 0)
 				if err != nil {
 					return err
 				}
-				err = os.WriteHead(codec.SIMPLE_LIST, 1)
+				err = os.WriteHead(codec.SimpleList, 1)
 				if err != nil {
 					return err
 				}
@@ -153,19 +147,19 @@ func (pb *PacketBuffer) writeTo(os *codec.Buffer) error {
 				if err != nil {
 					return err
 				}
-				err = os.Write_int32(int32(len(value)+2), 0)
+				err = os.WriteInt32(int32(len(value)+2), 0)
 				if err != nil {
 					return err
 				}
-				err = os.WriteHead(codec.STRUCT_BEGIN, 0)
+				err = os.WriteHead(codec.StructBegin, 0)
 				if err != nil {
 					return err
 				}
-				err = os.Write_slice_int8(tools.ByteToInt8(value))
+				err = os.WriteSliceInt8(tools.ByteToInt8(value))
 				if err != nil {
 					return err
 				}
-				err = os.WriteHead(codec.STRUCT_END, 0)
+				err = os.WriteHead(codec.StructEnd, 0)
 				if err != nil {
 					return err
 				}
@@ -176,16 +170,16 @@ func (pb *PacketBuffer) writeTo(os *codec.Buffer) error {
 		if err != nil {
 			return err
 		}
-		err = os.Write_int32(int32(len(pb.NewData)), 0)
+		err = os.WriteInt32(int32(len(pb.NewData)), 0)
 		if err != nil {
 			return err
 		}
 		for k, v := range pb.NewData {
-			err = os.Write_string(k, 0)
+			err = os.WriteString(k, 0)
 			if err != nil {
 				return err
 			}
-			err = os.WriteHead(codec.SIMPLE_LIST, 1)
+			err = os.WriteHead(codec.SimpleList, 1)
 			if err != nil {
 				return err
 			}
@@ -194,19 +188,19 @@ func (pb *PacketBuffer) writeTo(os *codec.Buffer) error {
 			if err != nil {
 				return err
 			}
-			err = os.Write_int32(int32(len(v)+2), 0) // struct begin + struct end
+			err = os.WriteInt32(int32(len(v)+2), 0) // struct begin + struct end
 			if err != nil {
 				return err
 			}
-			err = os.WriteHead(codec.STRUCT_BEGIN, 0)
+			err = os.WriteHead(codec.StructBegin, 0)
 			if err != nil {
 				return err
 			}
-			err = os.Write_slice_int8(tools.ByteToInt8(v))
+			err = os.WriteSliceInt8(tools.ByteToInt8(v))
 			if err != nil {
 				return err
 			}
-			err = os.WriteHead(codec.STRUCT_END, 0)
+			err = os.WriteHead(codec.StructEnd, 0)
 			if err != nil {
 				return err
 			}
@@ -220,11 +214,11 @@ func (pb *PacketBuffer) readFrom(is *codec.Reader) error {
 	var length int32
 
 	if pb.IVersion == 2 {
-		err, _ = is.SkipTo(codec.MAP, 0, false)
+		_, err = is.SkipTo(codec.MAP, 0, false)
 		if err != nil {
 			return err
 		}
-		err = is.Read_int32(&length, 0, false)
+		err = is.ReadInt32(&length, 0, false)
 		if err != nil {
 			return err
 		}
@@ -232,54 +226,54 @@ func (pb *PacketBuffer) readFrom(is *codec.Reader) error {
 		for i1, e1 := int32(0), length; i1 < e1; i1++ {
 			var k1 string
 
-			err = is.Read_string(&k1, 0, false)
+			err = is.ReadString(&k1, 0, false)
 			if err != nil {
 				return err
 			}
 
 			if k1 == "" { // for func ret
-				err, _ = is.SkipTo(codec.MAP, 1, false)
+				_, err = is.SkipTo(codec.MAP, 1, false)
 				if err != nil {
 					return err
 				}
 				var mapLength int32
-				err = is.Read_int32(&mapLength, 0, false)
+				err = is.ReadInt32(&mapLength, 0, false)
 				if err != nil {
 					return err
 				}
 
 				for i2, e2 := int32(0), mapLength; i2 < e2; i2++ {
 					var k2 string // int32
-					err = is.Read_string(&k2, 0, false)
+					err = is.ReadString(&k2, 0, false)
 					if err != nil {
 						return err
 					}
 
 					var retLength int32
-					err, _ = is.SkipTo(codec.SIMPLE_LIST, 1, false)
+					_, err = is.SkipTo(codec.SimpleList, 1, false)
 					if err != nil {
 						return err
 					}
-					err, _ = is.SkipTo(codec.BYTE, 0, false)
+					_, err = is.SkipTo(codec.BYTE, 0, false)
 					if err != nil {
 						return err
 					}
-					err := is.Read_int32(&retLength, 0, false)
+					err := is.ReadInt32(&retLength, 0, false)
 					if err != nil {
 						return err
 					}
-					err = is.Read_int32(&pb.iRet, 0, false)
+					err = is.ReadInt32(&pb.iRet, 0, false)
 					if err != nil {
 						return err
 					}
 				}
 			} else {
-				err, _ = is.SkipTo(codec.MAP, 1, false)
+				_, err = is.SkipTo(codec.MAP, 1, false)
 				if err != nil {
 					return err
 				}
 				var mapLength int32
-				err = is.Read_int32(&mapLength, 0, false)
+				err = is.ReadInt32(&mapLength, 0, false)
 				if err != nil {
 					return err
 				}
@@ -289,34 +283,34 @@ func (pb *PacketBuffer) readFrom(is *codec.Reader) error {
 					var v []int8
 					var v1 []byte
 
-					err = is.Read_string(&k2, 0, false)
+					err = is.ReadString(&k2, 0, false)
 					if err != nil {
 						return err
 					}
 
-					err, _ = is.SkipTo(codec.SIMPLE_LIST, 1, false)
+					_, err = is.SkipTo(codec.SimpleList, 1, false)
 					if err != nil {
 						return err
 					}
 
-					err, _ = is.SkipTo(codec.BYTE, 0, false)
+					_, err = is.SkipTo(codec.BYTE, 0, false)
 					if err != nil {
 						return err
 					}
 
 					var byteLength int32
 
-					err = is.Read_int32(&byteLength, 0, false)
+					err = is.ReadInt32(&byteLength, 0, false)
 					if err != nil {
 						return err
 					}
 
-					err, _ = is.SkipTo(codec.STRUCT_BEGIN, 0, false)
+					_, err = is.SkipTo(codec.StructBegin, 0, false)
 					if err != nil {
 						return err
 					}
 
-					err = is.Read_slice_int8(&v, byteLength, false)
+					err = is.ReadSliceInt8(&v, byteLength, false)
 					if err != nil {
 						return err
 					}
@@ -335,11 +329,11 @@ func (pb *PacketBuffer) readFrom(is *codec.Reader) error {
 		}
 
 	} else if pb.IVersion == 3 {
-		err, _ = is.SkipTo(codec.MAP, 0, false)
+		_, err = is.SkipTo(codec.MAP, 0, false)
 		if err != nil {
 			return err
 		}
-		err = is.Read_int32(&length, 0, false)
+		err = is.ReadInt32(&length, 0, false)
 		if err != nil {
 			return err
 		}
@@ -349,54 +343,54 @@ func (pb *PacketBuffer) readFrom(is *codec.Reader) error {
 			var v []int8
 			var v1 []byte
 
-			err = is.Read_string(&k1, 0, false)
+			err = is.ReadString(&k1, 0, false)
 			if err != nil {
 				return err
 			}
 
 			if k1 == "" { // for func ret
 				var retLength int32
-				err, _ = is.SkipTo(codec.SIMPLE_LIST, 1, false)
+				_, err = is.SkipTo(codec.SimpleList, 1, false)
 				if err != nil {
 					return err
 				}
-				err, _ = is.SkipTo(codec.BYTE, 0, false)
+				_, err = is.SkipTo(codec.BYTE, 0, false)
 				if err != nil {
 					return err
 				}
-				err := is.Read_int32(&retLength, 0, false)
+				err := is.ReadInt32(&retLength, 0, false)
 				if err != nil {
 					return err
 				}
 
-				err = is.Read_int32(&pb.iRet, 0, false)
+				err = is.ReadInt32(&pb.iRet, 0, false)
 				if err != nil {
 					return err
 				}
 			} else {
-				err, _ = is.SkipTo(codec.SIMPLE_LIST, 1, false)
+				_, err = is.SkipTo(codec.SimpleList, 1, false)
 				if err != nil {
 					return err
 				}
 
-				err, _ = is.SkipTo(codec.BYTE, 0, false)
+				_, err = is.SkipTo(codec.BYTE, 0, false)
 				if err != nil {
 					return err
 				}
 
 				var byteLength int32
 
-				err = is.Read_int32(&byteLength, 0, false)
+				err = is.ReadInt32(&byteLength, 0, false)
 				if err != nil {
 					return err
 				}
 
-				err, _ = is.SkipTo(codec.STRUCT_BEGIN, 0, false)
+				_, err = is.SkipTo(codec.StructBegin, 0, false)
 				if err != nil {
 					return err
 				}
 
-				err = is.Read_slice_int8(&v, byteLength, false)
+				err = is.ReadSliceInt8(&v, byteLength, false)
 				if err != nil {
 					return err
 				}
